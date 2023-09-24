@@ -1,18 +1,18 @@
 {
-  "name": "pkg-placeholder",
+  "name": "argateway",
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@8.7.0",
   "description": "_description_",
   "author": "Anthony Fu <anthonyfu117@hotmail.com>",
   "license": "MIT",
-  "funding": "https://github.com/sponsors/antfu",
-  "homepage": "https://github.com/antfu/pkg-placeholder#readme",
+  "funding": "https://github.com/sponsors/pawanpaudel93",
+  "homepage": "https://github.com/pawanpaudel93/argateway#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antfu/pkg-placeholder.git"
+    "url": "git+https://github.com/pawanpaudel93/argateway.git"
   },
-  "bugs": "https://github.com/antfu/pkg-placeholder/issues",
+  "bugs": "https://github.com/pawanpaudel93/argateway/issues",
   "keywords": [],
   "sideEffects": false,
   "exports": {
@@ -48,9 +48,9 @@
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.41.0",
-    "@antfu/ni": "^0.21.6",
-    "@antfu/utils": "^0.7.6",
+    "@pawanpaudel93/eslint-config": "^0.41.0",
+    "@pawanpaudel93/ni": "^0.21.6",
+    "@pawanpaudel93/utils": "^0.7.6",
     "@types/node": "^20.5.7",
     "bumpp": "^9.2.0",
     "eslint": "^8.48.0",
