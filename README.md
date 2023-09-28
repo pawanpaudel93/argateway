@@ -75,4 +75,12 @@ Give a ⭐️ if this project helped you!
 
 Copyright © 2023 [Pawan Paudel](https://github.com/pawanpaudel93).
 
+## License and Attribution
+
+This project incorporates code from the [WayFinder](https://github.com/ar-io/wayfinder) repository, which is governed by the GNU General Public License v3.0 (GPL-3.0). The complete text of the GPL-3.0 license can be found in the [LICENSE](https://github.com/ar-io/wayfinder/blob/develop/LICENSE) file.
+
+I extend my gratitude to the original authors for their contributions. Specific code utilized from the [WayFinder](https://github.com/ar-io/wayfinder) can be located in the [background.js](https://github.com/ar-io/wayfinder/blob/develop/background.js) file.
+
+For additional information, please consult the [WayFinder repository](https://github.com/ar-io/wayfinder).
+
 Happy Arweaving with ArGateway!

@@ -3,10 +3,10 @@
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@8.8.0",
-  "description": "_description_",
+  "description": "ArGateway is a library for managing and selecting Arweave gateways based on various routing methods. It provides a caching mechanism for efficient gateway selection and retrieval of online gateways.",
   "author": "Pawan Paudel <pawanpaudel93@gmail.com>",
-  "license": "MIT",
-  "funding": "https://github.com/sponsors/pawanpaudel93",
+  "license": "GNU General Public License v3.0",
+  "funding": "https: //github.com/sponsors/pawanpaudel93",
   "homepage": "https://github.com/pawanpaudel93/argateway#readme",
   "repository": {
     "type": "git",
