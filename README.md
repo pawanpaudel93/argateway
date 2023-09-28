@@ -1,37 +1,78 @@
-# argateway
+# ArGateway
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![bundle][bundle-src]][bundle-href]
-[![JSDocs][jsdocs-src]][jsdocs-href]
-[![License][license-src]][license-href]
+ArGateway is a library for managing and selecting Arweave gateways based on various routing methods. It provides a caching mechanism for efficient gateway selection and retrieval of online gateways.
 
-_description_
+## Features
 
-> **Note**:
-> Replace `argateway`, `_description_` and `pawanpaudel93` globally to use this template.
+- Select gateways using different routing methods:
+  - Random Top Five Staked Gateway
+  - Stake-weighted Random Gateway
+  - Random Gateway
+  - Highest Staked Gateway (default)
+- Caching of online gateway data for improved performance
+- Easy integration with Arweave applications
 
-## Sponsors
+## Installation
 
-<p align="center">
-  <a href="https://cdn.jsdelivr.net/gh/pawanpaudel93/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/pawanpaudel93/static/sponsors.svg'/>
-  </a>
-</p>
+To use ArGateway in your project, you can install it via npm or yarn:
 
-## License
+```bash
+npm install argateway
+# or
+yarn add argateway
+# or
+pnpm add argateway
+# or
+bun add argateway
+```
 
-[MIT](./LICENSE) License © 2023-PRESENT [Anthony Fu](https://github.com/pawanpaudel93)
+## Usage
 
-<!-- Badges -->
+Here's an example of how to use ArGateway in your JavaScript/TypeScript project:
 
-[npm-version-src]: https://img.shields.io/npm/v/argateway?style=flat&colorA=080f12&colorB=1fa669
-[npm-version-href]: https://npmjs.com/package/argateway
-[npm-downloads-src]: https://img.shields.io/npm/dm/argateway?style=flat&colorA=080f12&colorB=1fa669
-[npm-downloads-href]: https://npmjs.com/package/argateway
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/argateway?style=flat&colorA=080f12&colorB=1fa669&label=minzip
-[bundle-href]: https://bundlephobia.com/result?p=argateway
-[license-src]: https://img.shields.io/github/license/pawanpaudel93/argateway.svg?style=flat&colorA=080f12&colorB=1fa669
-[license-href]: https://github.com/pawanpaudel93/argateway/blob/main/LICENSE
-[jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=1fa669
-[jsdocs-href]: https://www.jsdocs.io/package/argateway
+```typescript
+import { ArGateway } from 'argateway';
+
+// Create an instance of ArGateway with optional cache options
+const gatewayManager = new ArGateway({
+  garCacheURL: 'https://dev.arns.app/v1/contract/bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U/gateways', // Optional: Gateway Address Registry cache URL
+  cacheOptions: {
+    location: './cache/argateway', // Optional: Cache location
+    expirationTime: 3600, // Optional: Cache expiration time in seconds
+  },
+});
+
+// Example 1: Select a random gateway from the top five staked online gateways
+const selectedGateway1 = await gatewayManager.getOnlineGateway({
+  routingMethod: 'RANDOM_TOP_FIVE_STAKED_ROUTE_METHOD',
+});
+
+
+// Example 2: Select a gateway using a custom selection function
+const selectedGateway2 = await gatewayManager.getOnlineGateway({
+  selectionFunction: (gar) => {
+    // Your custom logic to select a gateway
+    // Must return a `Gateway` object
+  },
+});
+```
+
+For more details and examples, please refer to the [API Documentation](./Api.md).
+
+## Author
+
+👤 **Pawan Paudel**
+
+- Github: [@pawanpaudel93](https://github.com/pawanpaudel93)
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome! \ Feel free to check [issues page](https://github.com/pawanpaudel93/argateway/issues).
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+Copyright © 2023 [Pawan Paudel](https://github.com/pawanpaudel93).
+
+Happy Arweaving with ArGateway!

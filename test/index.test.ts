@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
+import type { GatewayAddressRegistry } from '../src'
 import { ArGateway, DEFAULT_GATEWAY } from '../src'
-import type { GAR } from '../src/types'
 
 describe('ArGateway', () => {
   let arGateway: ArGateway
@@ -16,7 +16,7 @@ describe('ArGateway', () => {
 
   it('should get an online gateway with selection algorithm', async () => {
     const gateway = await arGateway.getOnlineGateway({
-      selectionFunction: (gar: GAR) => {
+      selectionFunction: (gar: GatewayAddressRegistry) => {
         const onlineGateways = Object.values(gar).filter(gateway => gateway.online)
 
         if (onlineGateways.length === 0)

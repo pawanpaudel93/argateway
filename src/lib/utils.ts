@@ -1,7 +1,7 @@
-import type { GATEWAY } from '../types'
+import type { Gateway } from '../types'
 
 export const DEFAULT_GARCACHE_URL = 'https://dev.arns.app/v1/contract/bLAgYxAdX2Ry-nt6aH2ixgvJXbpsEYm28NgJgyqfs-U/gateways'
-export const DEFAULT_GATEWAY: GATEWAY = {
+export const DEFAULT_GATEWAY: Gateway = {
   operatorStake: 250000,
   vaults: [],
   settings: {

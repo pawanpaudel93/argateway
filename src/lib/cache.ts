@@ -25,9 +25,9 @@ export class Cache {
 
   /**
    * Creates a new Cache instance with optional cache options.
-   * @param {CacheOptions} [cacheOptions] - The options for caching.
+   * @param {Partial<CacheOptions>} [cacheOptions] - The options for caching.
    */
-  constructor(cacheOptions?: CacheOptions) {
+  constructor(cacheOptions?: Partial<CacheOptions>) {
     this.#cacheOptions = { ...this.#cacheOptions, ...cacheOptions }
   }
 

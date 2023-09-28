@@ -16,9 +16,9 @@ export class ArGateway {
    * Creates a new ArGateway instance.
    * @param {object} options - The options for the ArGateway.
    * @param {string} [options.garCacheURL] - The URL for the Gateway Address Registry cache.
-   * @param {CacheOptions} [options.cacheOptions] - The options for caching.
+   * @param {Partial<CacheOptions>} [options.cacheOptions] - The options for caching.
    */
-  constructor(options: { garCacheURL?: string; cacheOptions?: CacheOptions }) {
+  constructor(options?: { garCacheURL?: string; cacheOptions?: Partial<CacheOptions> }) {
     this.#defaultGARCacheURL = options?.garCacheURL || this.#defaultGARCacheURL
     this.#cache = new Cache(options?.cacheOptions)
   }
