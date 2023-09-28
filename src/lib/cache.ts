@@ -15,11 +15,18 @@ const defaultCacheOptions: CacheOptions = {
   expirationTime: 3600,
 }
 
+/**
+ * Represents a caching mechanism that can store and retrieve data using local storage.
+ */
 export class Cache {
   #storage?: Storage
   #cache: Record<string, any> = {}
   #cacheOptions: CacheOptions = defaultCacheOptions
 
+  /**
+   * Creates a new Cache instance with optional cache options.
+   * @param {CacheOptions} [cacheOptions] - The options for caching.
+   */
   constructor(cacheOptions?: CacheOptions) {
     this.#cacheOptions = { ...this.#cacheOptions, ...cacheOptions }
   }
@@ -37,6 +44,12 @@ export class Cache {
     return this.#storage
   }
 
+  /**
+   * Gets cached data by a specified key.
+   * @template T
+   * @param {string} key - The key to retrieve cached data.
+   * @returns {Promise<T | null>} - A promise that resolves to the cached data, or null if not found.
+   */
   async get<T>(key: string): Promise<T | null> {
     const storage = await this.#getLocalStorage()
     // Check if the data is in memory cache
@@ -59,7 +72,15 @@ export class Cache {
     return null
   }
 
-  async set<T>(key: string, data: T, expirationTime = this.#cacheOptions.expirationTime): Promise<void> {
+  /**
+   * Sets data in the cache with a specified key and optional expiration time.
+   * @template T
+   * @param {string} key - The key to store the data under.
+   * @param {T} data - The data to be cached.
+   * @param {number} [expirationTime] - The expiration time for the cached data in seconds.
+   * @returns {Promise<void>} - A promise that resolves when the data is successfully cached.
+   */
+  async set<T>(key: string, data: T, expirationTime: number = this.#cacheOptions.expirationTime): Promise<void> {
     const storage = await this.#getLocalStorage()
     // Update the in-memory cache
     this.#cache[key] = data

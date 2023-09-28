@@ -3,18 +3,33 @@ import type { CacheOptions, GAR, GATEWAY, ROUTING_METHOD } from '../types'
 import { DEFAULT_GARCACHE_URL, DEFAULT_GATEWAY, isObjectEmpty } from './utils'
 import { Cache } from './cache'
 
+/**
+ * Represents an Arweave Gateway manager that selects gateways based on routing methods.
+ */
 export class ArGateway {
   #garCache: GAR = {}
   #defaultGARCacheURL = DEFAULT_GARCACHE_URL
   #defaultGateway = DEFAULT_GATEWAY
   #cache: Cache
 
-  constructor(params?: { garCacheURL?: string; cacheOptions?: CacheOptions }) {
-    this.#defaultGARCacheURL = params?.garCacheURL || this.#defaultGARCacheURL
-    this.#cache = new Cache(params?.cacheOptions)
+  /**
+   * Creates a new ArGateway instance.
+   * @param {object} options - The options for the ArGateway.
+   * @param {string} [options.garCacheURL] - The URL for the Gateway Address Registry cache.
+   * @param {CacheOptions} [options.cacheOptions] - The options for caching.
+   */
+  constructor({ garCacheURL, cacheOptions }: { garCacheURL?: string; cacheOptions?: CacheOptions }) {
+    this.#defaultGARCacheURL = garCacheURL || this.#defaultGARCacheURL
+    this.#cache = new Cache(cacheOptions)
   }
 
-  #selectRandomTopFiveStakedGateway(gar: GAR) {
+  /**
+   * Selects a random gateway from the top five staked online gateways.
+   * @private
+   * @param {GAR} gar - The Gateway Address Registry.
+   * @returns {GATEWAY} - The selected gateway.
+   */
+  #selectRandomTopFiveStakedGateway(gar: GAR): GATEWAY {
   // Filter online gateways and sort them by stake in descending order
     const sortedGateways = Object.values(gar)
       .filter(gateway => gateway.online)
@@ -34,7 +49,13 @@ export class ArGateway {
     return top5[randomIndex]
   }
 
-  #selectWeightedGateway(gar: GAR) {
+  /**
+   * Selects a weighted gateway based on operator stakes.
+   * @private
+   * @param {GAR} gar - The Gateway Address Registry.
+   * @returns {GATEWAY} - The selected gateway.
+   */
+  #selectWeightedGateway(gar: GAR): GATEWAY {
     const onlineGateways = Object.values(gar).filter(
       gateway => gateway.online,
     )
@@ -65,7 +86,13 @@ export class ArGateway {
     return this.#defaultGateway
   }
 
-  #selectRandomGateway(gar: GAR) {
+  /**
+   * Selects a random online gateway.
+   * @private
+   * @param {GAR} gar - The Gateway Address Registry.
+   * @returns {GATEWAY} - The selected gateway.
+   */
+  #selectRandomGateway(gar: GAR): GATEWAY {
     // Filter out gateways that are offline
     const onlineGateways = Object.values(gar).filter(
       gateway => gateway.online,
@@ -82,7 +109,13 @@ export class ArGateway {
     return onlineGateways[randomIndex]
   }
 
-  #selectHighestStakeGateway(gar: GAR) {
+  /**
+   * Selects the gateway with the highest operator stake.
+   * @private
+   * @param {GAR} gar - The Gateway Address Registry.
+   * @returns {GATEWAY} - The selected gateway.
+   */
+  #selectHighestStakeGateway(gar: GAR): GATEWAY {
     // Get the maximum stake value
     const maxStake = Math.max(
       ...Object.values(gar).map(gateway => gateway.operatorStake),
@@ -108,7 +141,12 @@ export class ArGateway {
     return maxStakeGateways[randomIndex]
   }
 
-  async #fetchOnlineGateways(garCacheURL?: string) {
+  /**
+   * Fetches online gateways from the cache or the network.
+   * @param {string} [garCacheURL] - The URL for the Gateway Address Registry cache.
+   * @returns {Promise<GAR>} - A promise that resolves to the online gateways.
+   */
+  async fetchOnlineGateways(garCacheURL?: string): Promise<GAR> {
     // Use the cache to fetch online gateways data if available
     const cachedData = await this.#cache.get<GAR>('onlineGateways')
     if (cachedData && !isObjectEmpty(cachedData))
@@ -136,7 +174,12 @@ export class ArGateway {
     return garCache
   }
 
-  async isGatewayOnline(gateway: GATEWAY) {
+  /**
+   * Checks if a gateway is online.
+   * @param {GATEWAY} gateway - The gateway to check.
+   * @returns {Promise<boolean>} - A promise that resolves to true if the gateway is online, otherwise false.
+   */
+  async isGatewayOnline(gateway: GATEWAY): Promise<boolean> {
     const url = `${gateway.settings.protocol}://${gateway.settings.fqdn}:${gateway.settings.port}/`
 
     try {
@@ -148,6 +191,11 @@ export class ArGateway {
     }
   }
 
+  /**
+   * Fetches the Gateway Address Registry cache.
+   * @param {string} [garCacheURL] - The URL for the Gateway Address Registry cache.
+   * @returns {Promise<GAR>} - A promise that resolves to the Gateway Address Registry data.
+   */
   async fetchGatewayAddressRegistryCache(garCacheURL?: string): Promise<GAR> {
     try {
       const response = await axios.get(garCacheURL || this.#defaultGARCacheURL)
@@ -159,6 +207,14 @@ export class ArGateway {
     }
   }
 
+  /**
+   * Gets an online gateway using a specified routing method or selection function.
+   * @param {object} options - The options for getting an online gateway.
+   * @param {ROUTING_METHOD} [options.routingMethod] - The routing method to use.
+   * @param {string} [options.garCacheURL] - The URL for the Gateway Address Registry cache.
+   * @param {(gar: GAR) => GATEWAY} [options.selectionFunction] - A custom selection function.
+   * @returns {Promise<GATEWAY>} - The selected gateway.
+   */
   async getOnlineGateway({
     routingMethod = 'HIGHEST_STAKE_ROUTE_METHOD',
     garCacheURL,
@@ -167,9 +223,9 @@ export class ArGateway {
     routingMethod?: ROUTING_METHOD
     garCacheURL?: string
     selectionFunction?: (gar: GAR) => GATEWAY
-  }) {
+  }): Promise<GATEWAY> {
     if (isObjectEmpty(this.#garCache))
-      this.#garCache = await this.#fetchOnlineGateways(garCacheURL)
+      this.#garCache = await this.fetchOnlineGateways(garCacheURL)
 
     const garCache = this.#garCache
     let gateway: GATEWAY = this.#defaultGateway
