@@ -14,7 +14,7 @@ export class ArGateway {
     this.#cache = new Cache(params?.cacheOptions)
   }
 
-  private selectRandomTopFiveStakedGateway(gar: GAR) {
+  #selectRandomTopFiveStakedGateway(gar: GAR) {
   // Filter online gateways and sort them by stake in descending order
     const sortedGateways = Object.values(gar)
       .filter(gateway => gateway.online)
@@ -22,7 +22,7 @@ export class ArGateway {
 
     // If there are no online gateways, return the default gateway
     if (sortedGateways.length === 0) {
-      console.log('No online gateways available. Using default')
+      console.log('No online gateways available. Using default.')
       return this.#defaultGateway
     }
 
@@ -34,10 +34,15 @@ export class ArGateway {
     return top5[randomIndex]
   }
 
-  private selectWeightedGateway(gar: GAR) {
+  #selectWeightedGateway(gar: GAR) {
     const onlineGateways = Object.values(gar).filter(
       gateway => gateway.online,
     )
+
+    if (onlineGateways.length === 0) {
+      console.log('No online gateways available. Using default.')
+      return this.#defaultGateway
+    }
 
     // Calculate the total stake among online gateways
     const totalStake = onlineGateways.reduce(
@@ -56,11 +61,11 @@ export class ArGateway {
     }
 
     // This point should never be reached if there's at least one online gateway, but just in case:
-    console.log('No gateways available.  Using default.')
+    console.log('No gateways available. Using default.')
     return this.#defaultGateway
   }
 
-  private selectRandomGateway(gar: GAR) {
+  #selectRandomGateway(gar: GAR) {
     // Filter out gateways that are offline
     const onlineGateways = Object.values(gar).filter(
       gateway => gateway.online,
@@ -68,7 +73,7 @@ export class ArGateway {
 
     // If there are no online gateways, handle this case appropriately
     if (onlineGateways.length === 0) {
-      console.log('No online random gateways available.  Using default')
+      console.log('No online random gateways available. Using default')
       return this.#defaultGateway
     }
 
@@ -77,7 +82,7 @@ export class ArGateway {
     return onlineGateways[randomIndex]
   }
 
-  private selectHighestStakeGateway(gar: GAR) {
+  #selectHighestStakeGateway(gar: GAR) {
     // Get the maximum stake value
     const maxStake = Math.max(
       ...Object.values(gar).map(gateway => gateway.operatorStake),
@@ -90,7 +95,7 @@ export class ArGateway {
 
     // If there's no online gateway with the maximum stake, handle this case
     if (maxStakeGateways.length === 0) {
-      console.log('No online gateways available.  Using default.')
+      console.log('No online gateways available. Using default.')
       return this.#defaultGateway
     }
 
@@ -103,7 +108,7 @@ export class ArGateway {
     return maxStakeGateways[randomIndex]
   }
 
-  private async fetchOnlineGateways(garCacheURL?: string) {
+  async #fetchOnlineGateways(garCacheURL?: string) {
     // Use the cache to fetch online gateways data if available
     const cachedData = await this.#cache.get<GAR>('onlineGateways')
     if (cachedData && !isObjectEmpty(cachedData))
@@ -131,39 +136,30 @@ export class ArGateway {
     return garCache
   }
 
-  public async isGatewayOnline(gateway: GATEWAY) {
+  async isGatewayOnline(gateway: GATEWAY) {
     const url = `${gateway.settings.protocol}://${gateway.settings.fqdn}:${gateway.settings.port}/`
 
-    const timeoutPromise = new Promise(
-      // eslint-disable-next-line promise/param-names
-      (_, reject) =>
-        setTimeout(
-          () =>
-            reject(new Error(`Request for ${url} timed out after 5 seconds`)),
-          5 * 1000,
-        ),
-    )
-
     try {
-      const response = await Promise.race([axios.head(url), timeoutPromise])
-      return (response as any).statusText === 'OK'
+      const response = await axios.head(url, { timeout: 5000 })
+      return response.statusText === 'OK'
     }
     catch (error: any) {
-      console.log(error.message)
       return false
     }
   }
 
-  public async fetchGatewayAddressRegistryCache(
-    garCacheURL?: string,
-  ): Promise<GAR> {
-    return axios
-      .get(garCacheURL || this.#defaultGARCacheURL)
-      .then(response => response.data)
-      .then(data => data.gateways ?? data.state.gateways)
+  async fetchGatewayAddressRegistryCache(garCacheURL?: string): Promise<GAR> {
+    try {
+      const response = await axios.get(garCacheURL || this.#defaultGARCacheURL)
+      return response.data.gateways || response.data.state.gateways || {}
+    }
+    catch (error: any) {
+      console.error(error.message)
+      return {}
+    }
   }
 
-  public async getOnlineGateway({
+  async getOnlineGateway({
     routingMethod = 'HIGHEST_STAKE_ROUTE_METHOD',
     garCacheURL,
     selectionFunction,
@@ -173,7 +169,7 @@ export class ArGateway {
     selectionFunction?: (gar: GAR) => GATEWAY
   }) {
     if (isObjectEmpty(this.#garCache))
-      this.#garCache = await this.fetchOnlineGateways(garCacheURL)
+      this.#garCache = await this.#fetchOnlineGateways(garCacheURL)
 
     const garCache = this.#garCache
     let gateway: GATEWAY = this.#defaultGateway
@@ -187,25 +183,25 @@ export class ArGateway {
     }
     else {
       if (routingMethod === 'RANDOM_TOP_FIVE_STAKED_ROUTE_METHOD') {
-        gateway = this.selectRandomTopFiveStakedGateway(garCache)
+        gateway = this.#selectRandomTopFiveStakedGateway(garCache)
         console.log(
           'Random Top 5 staked gateway being used: ',
           gateway.settings.fqdn,
         )
       }
       else if (routingMethod === 'STAKE_RANDOM_ROUTE_METHOD') {
-        gateway = this.selectWeightedGateway(garCache)
+        gateway = this.#selectWeightedGateway(garCache)
         console.log(
           'Stake-weighted random gateway being used: ',
           gateway.settings.fqdn,
         )
       }
       else if (routingMethod === 'RANDOM_ROUTE_METHOD') {
-        gateway = this.selectRandomGateway(garCache)
+        gateway = this.#selectRandomGateway(garCache)
         console.log('Random gateway being used: ', gateway.settings.fqdn)
       }
       else if (routingMethod === 'HIGHEST_STAKE_ROUTE_METHOD') {
-        gateway = this.selectHighestStakeGateway(garCache)
+        gateway = this.#selectHighestStakeGateway(garCache)
         console.log(
           'Highest staked gateway being used: ',
           gateway.settings.fqdn,
