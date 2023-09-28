@@ -1,7 +1,7 @@
 {
   "name": "argateway",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "pnpm@8.8.0",
   "description": "ArGateway is a library for managing and selecting Arweave gateways based on various routing methods. It provides a caching mechanism for efficient gateway selection and retrieval of online gateways.",
   "author": "Pawan Paudel <pawanpaudel93@gmail.com>",
