@@ -1,2 +1,2 @@
-export const one = 1
-export const two = 2
+export { ArGateway } from './lib/gateway'
+export { DEFAULT_GARCACHE_URL, DEFAULT_GATEWAY } from './lib/utils'
