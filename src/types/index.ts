@@ -1,4 +1,4 @@
-export interface GATEWAY {
+export interface Gateway {
   operatorStake: number
   vaults: { balance: number; start: number; end: number }[]
   settings: {
@@ -15,8 +15,8 @@ export interface GATEWAY {
   online: boolean
 }
 
-export interface GAR {
-  [key: string]: GATEWAY
+export interface GatewayAddressRegistry {
+  [key: string]: Gateway
 }
 
 export interface CacheOptions {
@@ -24,7 +24,9 @@ export interface CacheOptions {
   expirationTime: number
 }
 
-export type ROUTING_METHOD =
+export type SelectionFunction = (gar: GatewayAddressRegistry) => Gateway
+
+export type RoutingMethod =
   | 'RANDOM_ROUTE_METHOD'
   | 'STAKE_RANDOM_ROUTE_METHOD'
   | 'HIGHEST_STAKE_ROUTE_METHOD'
