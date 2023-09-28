@@ -105,7 +105,7 @@ export class ArGateway {
 
   private async fetchOnlineGateways(garCacheURL?: string) {
     // Use the cache to fetch online gateways data if available
-    const cachedData = await this.#cache.get<{ [key: string]: GAR }>('onlineGateways')
+    const cachedData = await this.#cache.get<GAR>('onlineGateways')
     if (cachedData && !isObjectEmpty(cachedData))
       return cachedData
 
@@ -156,7 +156,7 @@ export class ArGateway {
 
   public async fetchGatewayAddressRegistryCache(
     garCacheURL?: string,
-  ): Promise<{ [key: string]: GATEWAY }> {
+  ): Promise<GAR> {
     return axios
       .get(garCacheURL || this.#defaultGARCacheURL)
       .then(response => response.data)
