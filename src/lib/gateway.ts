@@ -10,7 +10,7 @@ export class ArGateway {
   #garCache: GatewayAddressRegistry = {}
   #defaultGARCacheURL = DEFAULT_GARCACHE_URL
   #defaultGateway = DEFAULT_GATEWAY
-  #cache: Cache
+  #cache: Cache<GatewayAddressRegistry>
 
   /**
    * Creates a new ArGateway instance.
@@ -147,7 +147,7 @@ export class ArGateway {
    */
   async fetchOnlineGateways(): Promise<GatewayAddressRegistry> {
     // Use the cache to fetch online gateways data if available
-    const cachedData = await this.#cache.get<GatewayAddressRegistry>('onlineGateways')
+    const cachedData = await this.#cache.get('onlineGateways')
     if (cachedData && !isObjectEmpty(cachedData))
       return cachedData
 

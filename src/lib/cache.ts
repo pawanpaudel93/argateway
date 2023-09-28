@@ -1,12 +1,8 @@
+import { Level } from 'level'
 import type { CacheOptions } from '../types'
 
-interface Storage {
-  getItem(key: string): string | null
-  setItem(key: string, value: string): void
-}
-
-interface CachedData {
-  data: any
+interface CachedData<T> {
+  data: T
   expiration: number | null
 }
 
@@ -16,11 +12,11 @@ const defaultCacheOptions: CacheOptions = {
 }
 
 /**
- * Represents a caching mechanism that can store and retrieve data using local storage.
+ * Represents a caching mechanism that can store and retrieve data using LevelDB.
  */
-export class Cache {
-  #storage?: Storage
-  #cache: Record<string, any> = {}
+export class Cache<T> {
+  #storage: Level<string, CachedData<T>>
+  #cache: Record<string, CachedData<T>> = {}
   #cacheOptions: CacheOptions = defaultCacheOptions
 
   /**
@@ -28,44 +24,32 @@ export class Cache {
    * @param {Partial<CacheOptions>} [cacheOptions] - The options for caching.
    */
   constructor(cacheOptions?: Partial<CacheOptions>) {
-    this.#cacheOptions = { ...this.#cacheOptions, ...cacheOptions }
-  }
-
-  async #getLocalStorage() {
-    if (this.#storage)
-      return this.#storage
-    if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
-      this.#storage = window.localStorage
-    }
-    else {
-      const { LocalStorage } = await import('node-localstorage')
-      this.#storage = new LocalStorage(this.#cacheOptions.location)
-    }
-    return this.#storage
+    this.#cacheOptions = { ...defaultCacheOptions, ...cacheOptions }
+    this.#storage = new Level<string, CachedData<T>>(this.#cacheOptions.location, { valueEncoding: 'json' })
   }
 
   /**
    * Gets cached data by a specified key.
-   * @template T
    * @param {string} key - The key to retrieve cached data.
    * @returns {Promise<T | null>} - A promise that resolves to the cached data, or null if not found.
    */
-  async get<T>(key: string): Promise<T | null> {
-    const storage = await this.#getLocalStorage()
+  async get(key: string): Promise<T | null> {
     // Check if the data is in memory cache
-    if (this.#cache[key])
-      return this.#cache[key]
+    const cachedItem = this.#cache[key]
+    if (cachedItem && (!cachedItem.expiration || Date.now() <= cachedItem.expiration))
+      return cachedItem.data
 
-    // If not, check if it's in local storage
-    const cachedData = storage.getItem(key)
-
-    if (cachedData) {
-      const { data, expiration } = JSON.parse(cachedData) as CachedData
-      if (!expiration || Date.now() <= expiration) {
+    // If not, check if it's in LevelDB
+    try {
+      const cachedData = await this.#storage.get(key)
+      if (!cachedData.expiration || Date.now() <= cachedData.expiration) {
         // Update the in-memory cache
-        this.#cache[key] = data
-        return data
+        this.#cache[key] = cachedData
+        return cachedData.data
       }
+    }
+    catch (error) {
+      // Data not found in LevelDB
     }
 
     // Data not found in cache
@@ -74,19 +58,15 @@ export class Cache {
 
   /**
    * Sets data in the cache with a specified key and optional expiration time.
-   * @template T
    * @param {string} key - The key to store the data under.
    * @param {T} data - The data to be cached.
-   * @param {number} [expirationTime] - The expiration time for the cached data in seconds.
    * @returns {Promise<void>} - A promise that resolves when the data is successfully cached.
    */
-  async set<T>(key: string, data: T, expirationTime: number = this.#cacheOptions.expirationTime): Promise<void> {
-    const storage = await this.#getLocalStorage()
+  async set(key: string, data: T): Promise<void> {
+    const expiration = this.#cacheOptions.expirationTime ? Date.now() + this.#cacheOptions.expirationTime * 1000 : null
     // Update the in-memory cache
-    this.#cache[key] = data
-
-    // Store the data in local storage
-    const expiration = expirationTime ? Date.now() + expirationTime * 1000 : null
-    storage.setItem(key, JSON.stringify({ data, expiration }))
+    this.#cache[key] = { data, expiration }
+    // Store the data in LevelDB
+    await this.#storage.put(key, { data, expiration })
   }
 }
