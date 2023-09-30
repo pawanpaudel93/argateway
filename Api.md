@@ -1,6 +1,6 @@
 # ArGateway API Documentation
 
-ArGateway is a JavaScript library for managing and selecting Arweave gateways based on various routing methods. This document provides detailed information about the library's API.
+ArGateway is a JavaScript library for selecting Arweave gateways based on various routing methods. This document provides detailed information about the library's API.
 
 ## Table of Contents
 

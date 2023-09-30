@@ -1,6 +1,6 @@
 # ArGateway
 
-ArGateway is a library for managing and selecting Arweave gateways based on various routing methods. It provides a caching mechanism for efficient gateway selection and retrieval of online gateways.
+ArGateway is a library for selecting Arweave gateways based on various routing methods. It provides a caching mechanism for efficient gateway selection and retrieval of online gateways.
 
 ## Features
 
